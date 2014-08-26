@@ -13,3 +13,6 @@ $RECYCLE.BIN/
 
 # node.js
 node_modules
+
+#tests
+_*
