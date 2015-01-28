@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+	<meta charset="UTF-8">
+	<title>javascript.blog.br</title>
+	<link rel="stylesheet" href="styles/global.css">
+	<meta name="robots" content="noindex, nofollow">
+</head>
+<body>
+	<h1>posts</h1>
+	{{#posts}}
+	<div class="post">
+		<a src="/posts/{{slug}}.html">{{title}}</a>
+	</div>
+	{{/posts}}
+</body>
+</html>

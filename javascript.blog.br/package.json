@@ -1,0 +1,29 @@
+{
+  "name": "javascript.blog.br",
+  "version": "1.0.0",
+  "description": "Fonte do site javascript.blog.br",
+  "main": "index.js",
+  "scripts": {
+    "test": "none"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/js-blog-brasil/js-blog-brasil.github.io.git"
+  },
+  "author": "Marcus Ortense",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/js-blog-brasil/js-blog-brasil.github.io/issues"
+  },
+  "homepage": "http://javascript.blog.br",
+  "dependencies": {
+    "gulp": "^3.8.10",
+    "gulp-cssmin": "^0.1.6",
+    "gulp-handlebars": "^3.0.1",
+    "gulp-less": "^2.0.1",
+    "gulp-markdown-to-json": "^0.2.1",
+    "gulp-minify-html": "^0.1.8",
+    "gulp-util": "^3.0.2",
+    "handlebars": "^2.0.0"
+  }
+}

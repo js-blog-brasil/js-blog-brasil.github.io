@@ -16,3 +16,7 @@ node_modules
 
 #tests
 _*
+build
+
+#sublime
+*sublime*
