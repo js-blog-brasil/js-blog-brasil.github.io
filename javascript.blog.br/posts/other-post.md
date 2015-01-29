@@ -2,6 +2,7 @@
 slug: other-post
 title: Other Post
 author: Jão da Silva
+date: 2014-01-29
 ---
 
 Lorem ipsum dolor sit amet, consectetur adipisicing elit. Libero nobis minus voluptate eaque iure atque! Saepe adipisci, doloremque deserunt illum, incidunt magni exercitationem sed voluptate culpa possimus harum a qui.

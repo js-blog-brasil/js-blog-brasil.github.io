@@ -7,6 +7,11 @@ var gulp       = require('gulp'),
 	cssmin     = require('gulp-cssmin'),
 	htmlmin    = require('gulp-minify-html');
 
+hbs.registerPartial(
+	'header',
+	fs.readFileSync('partials/header.hbs', 'utf-8')
+);
+
 gulp.task('postsToJson', function() {
   return gulp.src('posts/**/*.md')
 	.pipe(gutil.buffer())
@@ -58,7 +63,10 @@ gulp.task('buildIndex',function() {
 
 	//parse posts to array
 	for ( key in posts ) data.push(posts[key]);
+		
+	data.forEach(function(post){
+		console.log(typeof post.date);
+	});
+
 	fs.writeFileSync('build/index.html', template({ data: data}));
 });
-
-gulp.task('default', ['postsToJson', 'postsToHtml', 'buildIndex']);
