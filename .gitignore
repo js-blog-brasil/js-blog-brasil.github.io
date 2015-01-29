@@ -15,7 +15,6 @@ $RECYCLE.BIN/
 node_modules
 
 #tests
-_*
 build
 
 #sublime

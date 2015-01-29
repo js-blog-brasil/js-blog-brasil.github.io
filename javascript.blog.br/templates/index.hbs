@@ -8,10 +8,11 @@
 </head>
 <body>
 	<h1>posts</h1>
-	{{#posts}}
+	{{#each data}}
 	<div class="post">
-		<a src="/posts/{{slug}}.html">{{title}}</a>
+		<h2><a href="posts/{{slug}}.html">{{title}}</a></h2>
+		<p>por: {{author}}</p>
 	</div>
-	{{/posts}}
+	{{/each}}
 </body>
 </html>

@@ -1,0 +1,23 @@
+.menu {
+	margin: 0;
+	padding: 0;
+}
+	.menu-iten { 
+		margin: 0;
+		padding: 0;
+		display: inline-block;
+		color: red;
+		
+		&:hover {
+			color: blue;
+		}
+	}
+		.menu-link {
+			display: block;
+			&:hover {
+				text-decoration: underline;
+			}
+			&:before {
+				content: ">>"
+			}
+		}

@@ -1,7 +1,6 @@
 var gulp       = require('gulp'),
 	gutil      = require('gulp-util'),
 	fs         = require('fs'),
-	handlebars = require('gulp-handlebars'),
 	hbs        = require('handlebars'),
 	markdown   = require('gulp-markdown-to-json'), // *-*
 	less       = require('gulp-less'),
@@ -42,11 +41,10 @@ gulp.task('postsToHtml', function() {
 
 		template = hbs.compile(template);
 
-		console.log(post);
-
 		for ( key in posts ) {
 			post = template(posts[key]);
-			fs.writeFileSync('build/posts/' + key + '.html', post);
+
+			fs.writeFileSync('build/posts/' + posts[key].slug + '.html', post);
 		}
 });
 
@@ -60,9 +58,7 @@ gulp.task('buildIndex',function() {
 
 	//parse posts to array
 	for ( key in posts ) data.push(posts[key]);
-	console.log(data);
-	console.log(template({ posts: template(data) }));
-	//fs.writeFileSync('build/index.html', template({ post: template(data) }));
+	fs.writeFileSync('build/index.html', template({ data: data}));
 });
 
-gulp.task('default', ['postsToJson', 'postsToHtml']);
+gulp.task('default', ['postsToJson', 'postsToHtml', 'buildIndex']);
