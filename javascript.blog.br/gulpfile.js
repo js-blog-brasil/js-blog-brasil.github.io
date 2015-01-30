@@ -1,11 +1,14 @@
-var gulp       = require('gulp'),
-	gutil      = require('gulp-util'),
-	fs         = require('fs'),
-	hbs        = require('handlebars'),
-	markdown   = require('gulp-markdown-to-json'), // *-*
-	less       = require('gulp-less'),
-	cssmin     = require('gulp-cssmin'),
-	htmlmin    = require('gulp-minify-html');
+var gulp        = require('gulp'),
+	gutil       = require('gulp-util'),
+	fs          = require('fs'),
+	hbs         = require('handlebars'),
+	markdown    = require('gulp-markdown-to-json'), // *-*
+	less        = require('gulp-less'),
+	less_prefix = require('less-plugin-autoprefix'),
+	auto_prefix = new less_prefix({browsers: ['last 3 versions']}),
+	cssmin      = require('gulp-cssmin'),
+	htmlmin     = require('gulp-minify-html'),
+	deployDir   = './build/';
 
 hbs.registerPartial(
 	'header',
@@ -13,14 +16,14 @@ hbs.registerPartial(
 );
 
 gulp.task('postsToJson', function() {
-  return gulp.src('posts/**/*.md')
-	.pipe(gutil.buffer())
-	.pipe(markdown('posts.json'))
-	.pipe(gulp.dest('build/'));
+	return gulp.src('posts/**/*.md')
+		.pipe(gutil.buffer())
+		.pipe(markdown('posts.json'))
+		.pipe(gulp.dest(deployDir));
 });
 
 gulp.task('postsToHtml', function() {
-	var posts = require('./build/posts.json'),
+	var posts = require(deployDir + 'posts.json'),
 		template = fs.readFileSync('templates/post.hbs', 'utf-8'),
 		key,
 		post;
@@ -41,20 +44,20 @@ gulp.task('postsToHtml', function() {
 			}
 		}
 
-		deleteFolder('build/posts');
-		fs.mkdirSync('build/posts');
+		deleteFolder(deployDir + 'posts');
+		fs.mkdirSync(deployDir + 'posts');
 
 		template = hbs.compile(template);
 
 		for ( key in posts ) {
 			post = template(posts[key]);
 
-			fs.writeFileSync('build/posts/' + posts[key].slug + '.html', post);
+			fs.writeFileSync(deployDir + 'posts/' + posts[key].slug + '.html', post);
 		}
 });
 
-gulp.task('buildIndex',function() {
-	var posts = require('./build/posts.json'),
+gulp.task('buildIndex', function() {
+	var posts = require(deployDir + 'posts.json'),
 		template = fs.readFileSync('templates/index.hbs', 'utf-8'),
 		data = [],
 		key;
@@ -87,5 +90,20 @@ gulp.task('buildIndex',function() {
 		return a.date.getTime() < b.date.getTime();
 	});
 
-	fs.writeFileSync('build/index.html', template({ data: data}));
+	fs.writeFileSync(deployDir + 'index.html', template({ data: data}));
 });
+
+gulp.task('htmlmin', function() {
+	gulp.src(deployDir + '**/*.html')
+		.pipe(htmlmin())
+		.pipe(gulp.dest(deployDir));
+});
+
+gulp.task('less', function () {
+	gulp.src('./less/*.less')
+		.pipe(less({
+			plugins: [auto_prefix]
+		}))
+		.pipe(gulp.dest(deployDir + '/css'));
+});
+
