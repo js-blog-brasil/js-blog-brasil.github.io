@@ -59,13 +59,32 @@ gulp.task('buildIndex',function() {
 		data = [],
 		key;
 
+	function dateToString(date){
+		var dia = date.getDate().toString(),
+			mes = (date.getMonth() + 1).toString(),
+			ano = date.getFullYear();
+
+		return [
+				dia.length === 2 ? dia : '0' + dia,
+				mes.length === 2 ? mes : '0' + mes,
+				ano
+			].join('-');
+	}
+
 	template = hbs.compile(template);
 
 	//parse posts to array
 	for ( key in posts ) data.push(posts[key]);
-		
+	
+	//converte post.date
 	data.forEach(function(post){
-		console.log(typeof post.date);
+		post.date = new Date(post.date);
+		post.dateString = dateToString(post.date);
+	});
+
+	//post sort by date
+	data.sort(function(a, b) {
+		return a.date.getTime() < b.date.getTime();
 	});
 
 	fs.writeFileSync('build/index.html', template({ data: data}));
