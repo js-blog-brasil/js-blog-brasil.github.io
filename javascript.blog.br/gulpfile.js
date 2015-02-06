@@ -1,14 +1,16 @@
-var gulp        = require('gulp'),
-	gutil       = require('gulp-util'),
-	fs          = require('fs'),
+var fs          = require('fs'),
 	hbs         = require('handlebars'),
+	gulp        = require('gulp'),
+	gutil       = require('gulp-util'),
+	watch       = require('gulp-watch'),
+	cssmin      = require('gulp-cssmin'),
+	htmlmin     = require('gulp-minify-html'),
+	connect     = require('gulp-connect'),
 	markdown    = require('gulp-markdown-to-json'), // *-*
 	less        = require('gulp-less'),
 	less_prefix = require('less-plugin-autoprefix'),
 	auto_prefix = new less_prefix({browsers: ['last 3 versions']}),
-	cssmin      = require('gulp-cssmin'),
-	htmlmin     = require('gulp-minify-html'),
-	deployDir   = './build/';
+	deploy_dir  = './build/';
 
 hbs.registerPartial(
 	'header',
@@ -19,11 +21,11 @@ gulp.task('postsToJson', function() {
 	return gulp.src('posts/**/*.md')
 		.pipe(gutil.buffer())
 		.pipe(markdown('posts.json'))
-		.pipe(gulp.dest(deployDir));
+		.pipe(gulp.dest(deploy_dir));
 });
 
-gulp.task('postsToHtml', function() {
-	var posts = require(deployDir + 'posts.json'),
+gulp.task('postsToHtml', ['postsToJson'], function() {
+	var posts = require(deploy_dir + 'posts.json'),
 		template = fs.readFileSync('templates/post.hbs', 'utf-8'),
 		key,
 		post;
@@ -44,20 +46,20 @@ gulp.task('postsToHtml', function() {
 			}
 		}
 
-		deleteFolder(deployDir + 'posts');
-		fs.mkdirSync(deployDir + 'posts');
+		deleteFolder(deploy_dir + 'posts');
+		fs.mkdirSync(deploy_dir + 'posts');
 
 		template = hbs.compile(template);
 
 		for ( key in posts ) {
 			post = template(posts[key]);
 
-			fs.writeFileSync(deployDir + 'posts/' + posts[key].slug + '.html', post);
+			fs.writeFileSync(deploy_dir + 'posts/' + posts[key].slug + '.html', post);
 		}
 });
 
-gulp.task('buildIndex', function() {
-	var posts = require(deployDir + 'posts.json'),
+gulp.task('buildIndex', ['postsToJson'], function() {
+	var posts = require(deploy_dir + 'posts.json'),
 		template = fs.readFileSync('templates/index.hbs', 'utf-8'),
 		data = [],
 		key;
@@ -90,20 +92,49 @@ gulp.task('buildIndex', function() {
 		return a.date.getTime() < b.date.getTime();
 	});
 
-	fs.writeFileSync(deployDir + 'index.html', template({ data: data}));
+	fs.writeFileSync(deploy_dir + 'index.html', template({ data: data}));
 });
 
-gulp.task('htmlmin', function() {
-	gulp.src(deployDir + '**/*.html')
+gulp.task('html', ['postsToHtml','buildIndex'], function() {
+	gulp.src(deploy_dir + '**/*.html')
 		.pipe(htmlmin())
-		.pipe(gulp.dest(deployDir));
+		.pipe(gulp.dest(deploy_dir))
+		.pipe(connect.reload());
 });
 
 gulp.task('less', function () {
-	gulp.src('./less/*.less')
+	return gulp.src('./less/*.less')
 		.pipe(less({
 			plugins: [auto_prefix]
 		}))
-		.pipe(gulp.dest(deployDir + '/css'));
+		.pipe(gulp.dest(deploy_dir + '/css'));
 });
 
+gulp.task('css', ['less'], function() {
+	return gulp.src(deploy_dir + 'css/*.css')
+	    .pipe(cssmin())
+	    .pipe(gulp.dest(deploy_dir + '/css'))
+	    .pipe(connect.reload());
+});
+
+gulp.task('server', function () {
+	connect.server({
+		root: deploy_dir,
+		port: 8000,
+		livereload: true
+	});
+});
+
+gulp.task('watch', function() {
+	gulp.watch([
+			'posts/**/*.md', 
+			'templates/**/*.hbs',
+			'partials/**/*.hbs'
+		], ['html']
+	);
+	gulp.watch(['./less/*.less'], ['css']);
+});
+
+gulp.task('build', ['css', 'html']);
+
+gulp.task('default', ['build', 'watch', 'server']);
