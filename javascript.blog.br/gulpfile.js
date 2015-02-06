@@ -3,6 +3,11 @@ var fs          = require('fs'),
 	gulp        = require('gulp'),
 	gutil       = require('gulp-util'),
 	watch       = require('gulp-watch'),
+	concat      = require('gulp-concat'),
+	sourcemaps  = require('gulp-sourcemaps'),
+	uglify      = require('gulp-uglify'),
+	to5         = require('gulp-6to5'),
+	jshint      = require('gulp-jshint'),
 	cssmin      = require('gulp-cssmin'),
 	htmlmin     = require('gulp-minify-html'),
 	connect     = require('gulp-connect'),
@@ -24,7 +29,7 @@ gulp.task('postsToJson', function() {
 		.pipe(gulp.dest(deploy_dir));
 });
 
-gulp.task('postsToHtml', ['postsToJson'], function() {
+gulp.task('postsToHtml', function() {
 	var posts = require(deploy_dir + 'posts.json'),
 		template = fs.readFileSync('templates/post.hbs', 'utf-8'),
 		key,
@@ -58,14 +63,14 @@ gulp.task('postsToHtml', ['postsToJson'], function() {
 		}
 });
 
-gulp.task('buildIndex', ['postsToJson'], function() {
+gulp.task('buildIndex', function() {
 	var posts = require(deploy_dir + 'posts.json'),
 		template = fs.readFileSync('templates/index.hbs', 'utf-8'),
 		data = [],
 		key;
 
 	function dateToString(date){
-		var dia = date.getDate().toString(),
+		var dia = (date.getDate()  + 1).toString(),
 			mes = (date.getMonth() + 1).toString(),
 			ano = date.getFullYear();
 
@@ -95,7 +100,7 @@ gulp.task('buildIndex', ['postsToJson'], function() {
 	fs.writeFileSync(deploy_dir + 'index.html', template({ data: data}));
 });
 
-gulp.task('html', ['postsToHtml','buildIndex'], function() {
+gulp.task('html', ['postsToJson', 'postsToHtml','buildIndex'], function() {
 	gulp.src(deploy_dir + '**/*.html')
 		.pipe(htmlmin())
 		.pipe(gulp.dest(deploy_dir))
@@ -112,9 +117,21 @@ gulp.task('less', function () {
 
 gulp.task('css', ['less'], function() {
 	return gulp.src(deploy_dir + 'css/*.css')
-	    .pipe(cssmin())
-	    .pipe(gulp.dest(deploy_dir + '/css'))
-	    .pipe(connect.reload());
+		.pipe(cssmin())
+		.pipe(gulp.dest(deploy_dir + 'css'))
+		.pipe(connect.reload());
+});
+
+gulp.task('js', function() {
+	return gulp.src('./js/**/*.js')
+		.pipe(jshint())
+		.pipe(sourcemaps.init())
+		.pipe(to5())
+		.pipe(concat('app.js'))
+		.pipe(uglify())
+		.pipe(sourcemaps.write('.'))
+		.pipe(gulp.dest(deploy_dir + 'js'))
+		.pipe(connect.reload());
 });
 
 gulp.task('server', function () {
@@ -135,6 +152,6 @@ gulp.task('watch', function() {
 	gulp.watch(['./less/*.less'], ['css']);
 });
 
-gulp.task('build', ['css', 'html']);
+gulp.task('build', ['css', 'html', 'js']);
 
 gulp.task('default', ['build', 'watch', 'server']);

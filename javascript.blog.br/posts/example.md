@@ -1,8 +1,8 @@
 ---
 slug: hello-world
-title: Hello World!
+title: Hello World!!
 author: Marcus Ortense
-date: 2015-01-25
+date: 2015-01-06
 ---
 
 Lorem ipsum dolor sit amet, consectetur adipisicing elit. Libero nobis minus voluptate eaque iure atque! Saepe adipisci, doloremque deserunt illum, incidunt magni exercitationem sed voluptate culpa possimus harum a qui.
