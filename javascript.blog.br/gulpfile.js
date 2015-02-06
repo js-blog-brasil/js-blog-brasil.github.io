@@ -10,6 +10,7 @@ var fs          = require('fs'),
 	jshint      = require('gulp-jshint'),
 	cssmin      = require('gulp-cssmin'),
 	htmlmin     = require('gulp-minify-html'),
+	imageop     = require('gulp-image-optimization'),
 	connect     = require('gulp-connect'),
 	markdown    = require('gulp-markdown-to-json'), // *-*
 	less        = require('gulp-less'),
@@ -134,6 +135,17 @@ gulp.task('js', function() {
 		.pipe(connect.reload());
 });
 
+gulp.task('img', function(cb) {
+	gulp.src('./img/**/*.{png,jpg,jpeg,gif,svg}')
+		.pipe(imageop({
+			optimizationLevel: 5,
+			progressive: true,
+			interlaced: true
+		}))
+		.pipe(gulp.dest(deploy_dir + 'img'))
+		.pipe(connect.reload());
+});
+
 gulp.task('server', function () {
 	connect.server({
 		root: deploy_dir,
@@ -149,7 +161,8 @@ gulp.task('watch', function() {
 			'partials/**/*.hbs'
 		], ['html']
 	);
-	gulp.watch(['./less/*.less'], ['css']);
+	gulp.watch(['./less/**/*.less'], ['css']);
+	gulp.watch('./img/**/*.{png,jpg,jpeg,gif,svg}', ['img']);
 });
 
 gulp.task('build', ['css', 'html', 'js']);
